@@ -8,6 +8,9 @@ from botasaurus import cl
 import urllib.parse
 from .country import get_cities
 from .category import category_options
+from botasaurus import *
+import re
+
 def convert_to_string(input_str):
     return urllib.parse.unquote_plus(input_str).strip()
 
@@ -386,6 +389,34 @@ social_media_filters = [
     "emails", "phones", "linkedin", "twitter", "facebook",
     "youtube", "instagram", "github", "snapchat", "tiktok"
 ]
+
+def extract_emails(text):
+    """Extract email addresses from text using regex."""
+    email_pattern = r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b'
+    return re.findall(email_pattern, text)
+
+@bt.browser
+def website_contacts_scraper(data: dict, driver: AntiDetectDriver):
+    websites = data["websites"]
+    results = []
+
+    for website in websites:
+        driver.get(website)
+        page_source = driver.page_source
+
+        # Extract emails from the page source
+        emails = extract_emails(page_source)
+
+        # ... existing code to extract other contact information ...
+
+        result = {
+            "website": website,
+            "emails": emails,
+            # ... other extracted information ...
+        }
+        results.append(result)
+
+    return results
 
 Server.add_scraper(
     website_contacts_scraper,
